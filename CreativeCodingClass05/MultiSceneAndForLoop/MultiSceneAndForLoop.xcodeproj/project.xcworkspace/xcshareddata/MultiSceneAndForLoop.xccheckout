@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>41FE09C2-575E-48F0-ACC4-E5F0AE508899</string>
+	<key>IDESourceControlProjectName</key>
+	<string>MultiSceneAndForLoop</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>5FB0ED54-5D4A-42BF-AD0B-5A52F363A683</key>
+		<string>https://github.com/qkbock/CreativeCoding.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>CreativeCodingClass05/MultiSceneAndForLoop/MultiSceneAndForLoop.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>5FB0ED54-5D4A-42BF-AD0B-5A52F363A683</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/qkbock/CreativeCoding.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>5FB0ED54-5D4A-42BF-AD0B-5A52F363A683</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>5FB0ED54-5D4A-42BF-AD0B-5A52F363A683</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Creative Coding</string>
+		</dict>
+	</array>
+</dict>
+</plist>
