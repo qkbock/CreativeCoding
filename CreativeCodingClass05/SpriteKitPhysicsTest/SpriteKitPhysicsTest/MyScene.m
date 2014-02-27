@@ -7,6 +7,8 @@
 //
 
 #import "MyScene.h"
+#define ARC4RANDOM_MAX 0x100000000
+
 @implementation MyScene
 
 //------------------------------------------------------------------------------------------------
@@ -15,6 +17,11 @@
     SKSpriteNode *_octagon;
     SKSpriteNode *_circle;
     SKSpriteNode *_triangle;
+    NSTimeInterval _dt;
+    NSTimeInterval _lastUpdateTime;
+    CGVector _windForce;
+    BOOL _blowing;
+    NSTimeInterval _timeUntilSwitchWindDirection;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -119,5 +126,40 @@
 }
 
 //------------------------------------------------------------------------------------------------
+
+static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max)
+{
+    return floorf(((double)arc4random() / ARC4RANDOM_MAX) * (max - min) + min);
+}
+
+//------------------------------------------------------------------------------------------------
+
+- (void)update:(NSTimeInterval)currentTime
+{
+    // 1
+    if (_lastUpdateTime) {
+        _dt = currentTime - _lastUpdateTime;
+    } else {
+        _dt = 0;
+    }
+    _lastUpdateTime = currentTime;
+    // 2
+    _timeUntilSwitchWindDirection -= _dt;
+    if (_timeUntilSwitchWindDirection <= 0) {
+        _timeUntilSwitchWindDirection = ScalarRandomRange(1, 5);
+        _windForce = CGVectorMake(ScalarRandomRange(-50, 50), 0); // 3
+        NSLog(@"Wind force: %0.2f, %0.2f",
+              _windForce.dx, _windForce.dy);
+    }
+    
+    for (SKSpriteNode *node in self.children) {
+        [node.physicsBody applyForce: _windForce];
+    }
+
+    
+}
+
+//------------------------------------------------------------------------------------------------
+
 
 @end
