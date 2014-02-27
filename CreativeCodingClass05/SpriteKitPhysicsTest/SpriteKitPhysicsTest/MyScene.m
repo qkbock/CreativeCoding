@@ -9,6 +9,14 @@
 #import "MyScene.h"
 #define ARC4RANDOM_MAX 0x100000000
 
+static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max)
+{
+    return floorf(((double)arc4random() / ARC4RANDOM_MAX) * (max - min) + min);
+}
+static const float CIRCLE_MOVE_POINTS_PER_SEC = 120.0;
+
+//------------------------------------------------------------------------------------------------
+
 @implementation MyScene
 
 //------------------------------------------------------------------------------------------------
@@ -17,11 +25,15 @@
     SKSpriteNode *_octagon;
     SKSpriteNode *_circle;
     SKSpriteNode *_triangle;
+    
     NSTimeInterval _dt;
     NSTimeInterval _lastUpdateTime;
     CGVector _windForce;
     BOOL _blowing;
     NSTimeInterval _timeUntilSwitchWindDirection;
+    
+    CGPoint _location;
+    CGPoint _velocity;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -45,6 +57,8 @@
         self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
         _circle.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:_circle.size.width/2];
     
+        [_circle.physicsBody setDynamic:NO];
+        
         //Triangle
         //1
         CGMutablePathRef trianglePath = CGPathCreateMutable();
@@ -115,22 +129,25 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    UITouch *touch = [touches anyObject];
+    _location = [touch locationInNode:self];
+    [_circle removeAllActions];
+    [_circle runAction:[SKAction moveTo:_location duration:1.0]];
+    
     for (SKSpriteNode *node in self.children) {
         if ([node.name isEqualToString:@"sand"])
             [node.physicsBody applyImpulse: CGVectorMake(0, arc4random()%50)];
     }
-    SKAction *shake = [SKAction moveByX:0 y:10 duration:0.05];
-    [self runAction:
-     [SKAction repeatAction:
-      [SKAction sequence:@[shake, [shake reversedAction]]]count:5]];
+//    SKAction *shake = [SKAction moveByX:0 y:10 duration:0.05];
+//    [self runAction:
+//     [SKAction repeatAction:
+//      [SKAction sequence:@[shake, [shake reversedAction]]]count:5]];
+//    
+    
 }
 
 //------------------------------------------------------------------------------------------------
 
-static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max)
-{
-    return floorf(((double)arc4random() / ARC4RANDOM_MAX) * (max - min) + min);
-}
 
 //------------------------------------------------------------------------------------------------
 
@@ -157,6 +174,16 @@ static inline CGFloat ScalarRandomRange(CGFloat min, CGFloat max)
     }
 
     
+}
+
+//------------------------------------------------------------------------------------------------
+
+- (void)moveCircleToTouch:(CGPoint)location
+{
+    CGPoint offset = CGPointMake(location.x - _circle.position.x, location.y - _circle.position.y);
+    CGFloat length = sqrtf(offset.x * offset.x + offset.y * offset.y);
+    CGPoint direction = CGPointMake(offset.x / length, offset.y / length);
+    _velocity = CGPointMake(direction.x * CIRCLE_MOVE_POINTS_PER_SEC, direction.y*CIRCLE_MOVE_POINTS_PER_SEC);
 }
 
 //------------------------------------------------------------------------------------------------
