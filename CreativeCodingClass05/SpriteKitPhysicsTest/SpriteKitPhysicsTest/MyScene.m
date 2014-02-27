@@ -12,7 +12,7 @@
 //------------------------------------------------------------------------------------------------
 
 {
-    SKSpriteNode *_square;
+    SKSpriteNode *_octagon;
     SKSpriteNode *_circle;
     SKSpriteNode *_triangle;
 }
@@ -23,9 +23,9 @@
 {
     if(self = [super initWithSize:size])
     {
-        _square = [SKSpriteNode spriteNodeWithImageNamed:@"square"];
-        _square.position = CGPointMake(self.size.width * 0.25, self.size.height * 0.50);
-        [self addChild:_square];
+        _octagon = [SKSpriteNode spriteNodeWithImageNamed:@"octagon"];
+        _octagon.position = CGPointMake(self.size.width * 0.25, self.size.height * 0.50);
+        [self addChild:_octagon];
         
         _circle = [SKSpriteNode spriteNodeWithImageNamed:@"circle"];
         _circle.position = CGPointMake(self.size.width * 0.50, self.size.height * 0.50);
@@ -37,8 +37,8 @@
         
         self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
         _circle.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:_circle.size.width/2];
-        _square.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:_square.size];
-        
+    
+        //Triangle
         //1
         CGMutablePathRef trianglePath = CGPathCreateMutable();
         //2
@@ -51,6 +51,27 @@
         _triangle.physicsBody = [SKPhysicsBody bodyWithPolygonFromPath:trianglePath];
         //5
         CGPathRelease(trianglePath);
+        
+        
+        //Octagon
+        //1
+        CGMutablePathRef octagonPath = CGPathCreateMutable();
+        //2
+        CGPathMoveToPoint(octagonPath, nil, -_octagon.size.width/4, -_octagon.size.height/2);
+        //3
+        CGPathAddLineToPoint(octagonPath, nil, _octagon.size.width/4, -_octagon.size.height/2);
+        CGPathAddLineToPoint(octagonPath, nil, _octagon.size.width/2, -_octagon.size.height/4);
+        CGPathAddLineToPoint(octagonPath, nil, _octagon.size.width/2, _octagon.size.height/4);
+        CGPathAddLineToPoint(octagonPath, nil, _octagon.size.width/4, _octagon.size.height/2);
+        CGPathAddLineToPoint(octagonPath, nil, -_octagon.size.width/4, _octagon.size.height/2);
+        CGPathAddLineToPoint(octagonPath, nil, -_octagon.size.width/2, _octagon.size.height/4);
+        CGPathAddLineToPoint(octagonPath, nil, -_octagon.size.width/2, -_octagon.size.height/4);
+        CGPathAddLineToPoint(octagonPath, nil, -_octagon.size.width/4, -_octagon.size.height/2);
+        //4
+        _octagon.physicsBody = [SKPhysicsBody bodyWithPolygonFromPath:octagonPath];
+        //5
+        CGPathRelease(octagonPath);
+        
         
         [self runAction:
          [SKAction repeatAction:
