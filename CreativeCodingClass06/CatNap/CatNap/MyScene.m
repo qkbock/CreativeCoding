@@ -50,12 +50,16 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
     self.physicsWorld.contactDelegate = self;
     self.physicsBody.categoryBitMask = CNPhysicsCategoryEdge;
+    
     SKSpriteNode* bg = [SKSpriteNode spriteNodeWithImageNamed:@"background"];
     bg.position = CGPointMake(self.size.width/2, self.size.height/2);
     [self addChild: bg];
+    
     [self addCatBed];
+    
     _gameNode = [SKNode node];
     [self addChild:_gameNode];
+    
     _currentLevel = 1;
     [self setupLevel: _currentLevel];
 }
@@ -67,9 +71,11 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     _bedNode = [SKSpriteNode spriteNodeWithImageNamed:@"cat_bed"];
     _bedNode.position = CGPointMake(270, 15);
     [self addChild:_bedNode];
+    
     CGSize contactSize = CGSizeMake(40, 30);
     _bedNode.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:contactSize];
     _bedNode.physicsBody.dynamic = NO;
+    
     [_bedNode attachDebugRectWithSize:contactSize];
     _bedNode.physicsBody.categoryBitMask = CNPhysicsCategoryBed;
 }
@@ -81,10 +87,15 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     //add the cat in the level on its starting position
     _catNode = [ SKSpriteNode spriteNodeWithImageNamed:@"cat_sleepy"];
     _catNode.position = pos;
+    
     [_gameNode addChild:_catNode];
+    
     CGSize contactSize = CGSizeMake(_catNode.size.width-40, _catNode.size.height-10);
+    
     _catNode.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize: contactSize];
+    
     [_catNode attachDebugRectWithSize: contactSize];
+    
     _catNode.physicsBody.categoryBitMask = CNPhysicsCategoryCat;
     _catNode.physicsBody.collisionBitMask = CNPhysicsCategoryBlock | CNPhysicsCategoryEdge;
     _catNode.physicsBody.contactTestBitMask = CNPhysicsCategoryBed | CNPhysicsCategoryEdge;
@@ -98,6 +109,7 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     NSString *fileName = [NSString stringWithFormat:@"level%i",levelNum];
     NSString *filePath = [[NSBundle mainBundle] pathForResource:fileName ofType:@"plist"];
     NSDictionary *level = [NSDictionary dictionaryWithContentsOfFile:filePath];
+    
     [self addCatAtPosition: CGPointFromString(level[@"catPosition"])];
     [self addBlocksFromArray:level[@"blocks"]];
     [[SKTAudio sharedInstance] playBackgroundMusic:@"bgMusic.mp3"];
@@ -111,8 +123,10 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     for (NSDictionary *block in blocks) {
         //2
         SKSpriteNode *blockSprite = [self addBlockWithRect:CGRectFromString(block[@"rect"])];
+        
         blockSprite.physicsBody.categoryBitMask = CNPhysicsCategoryBlock;
         blockSprite.physicsBody.collisionBitMask = CNPhysicsCategoryBlock | CNPhysicsCategoryCat | CNPhysicsCategoryEdge;
+        
         [_gameNode addChild:blockSprite];
     }
 }
@@ -157,6 +171,7 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
 
 - (void)didBeginContact:(SKPhysicsContact *)contact
 {
+    //check to see if the cat hit the bed or the floor
     uint32_t collision = (contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask);
     if (collision == (CNPhysicsCategoryCat|CNPhysicsCategoryBed))
     {
@@ -168,6 +183,35 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
         NSLog(@"FAIL");
         [self lose];
     }
+    
+    
+    //NOT WORKING :(:(
+    //check to see how many times the label hit the floor
+    if(collision ==(CNPhysicsCategoryEdge|CNPhysicsCategoryLabel)){
+        //look at the bitmask category label
+        SKLabelNode* label = (contact.bodyA.categoryBitMask==CNPhysicsCategoryLabel)?(SKLabelNode*)contact.bodyA.node:(SKLabelNode*)contact.bodyB.node;
+        
+        //if no bounce count has previously been assigned to this label
+        if (label.userData == nil){
+            //make up a thing called bounceCount in its userData
+            label.userData = [@{@"bounceCount":@0} mutableCopy];
+        }
+        
+        //hold the info of what the new bounce count will be in a new variable
+        int newBounceCount = [label.userData[@"bounceCount"] intValue]+1;
+        
+        //cehck and see if the new bounce count is equal to 4
+        if (newBounceCount==4) {
+            //remove it if it is
+            [label removeFromParent];
+        }
+        else{
+            //otherwise just set the userdata equal to the new bounce count
+            label.userData = [@{@"bounceCount":@(newBounceCount)} mutableCopy];
+        }
+    }
+
+
 }
 
 //--------------------------------------------------------------------------------------
@@ -187,11 +231,13 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     label.physicsBody.restitution = 0.7;
     // 3
     [_gameNode addChild:label];
+
     // 4
-    [label runAction:
-     [SKAction sequence:@[
-                          [SKAction waitForDuration:3.0],
-                          [SKAction removeFromParent]]]];
+    //from before challenge
+//    [label runAction:
+//     [SKAction sequence:@[
+//                          [SKAction waitForDuration:3.0],
+//                          [SKAction removeFromParent]]]];
 }
 
 //--------------------------------------------------------------------------------------
