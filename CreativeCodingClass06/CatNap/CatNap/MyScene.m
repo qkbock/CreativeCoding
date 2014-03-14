@@ -72,7 +72,7 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     _gameNode = [SKNode node];
     [self addChild:_gameNode];
     
-    _currentLevel = 4;
+    _currentLevel = 7;
     [self setupLevel: _currentLevel];
 }
 
@@ -184,33 +184,63 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
 
 -(void)addBlocksFromArray:(NSArray*)blocks
 {
-    // 1
     for (NSDictionary *block in blocks) {
-        if (block[@"tuple"]) {
-            //1
-            CGRect rect1 = CGRectFromString([block[@"tuple"] firstObject]);
-            SKSpriteNode* block1 = [self addBlockWithRect: rect1];
-            block1.physicsBody.friction = 0.8;
-            block1.physicsBody.categoryBitMask = CNPhysicsCategoryBlock;
-            block1.physicsBody.collisionBitMask = CNPhysicsCategoryBlock | CNPhysicsCategoryCat | CNPhysicsCategoryEdge;
-            [_gameNode addChild: block1];
-            //2
-            CGRect rect2 = CGRectFromString([block[@"tuple"] lastObject]);
-            SKSpriteNode* block2 = [self addBlockWithRect: rect2];
-            block2.physicsBody.friction = 0.8;
-            block2.physicsBody.categoryBitMask = CNPhysicsCategoryBlock;
-            block2.physicsBody.collisionBitMask = CNPhysicsCategoryBlock | CNPhysicsCategoryCat | CNPhysicsCategoryEdge;
-            [_gameNode addChild: block2];
-            
-            [self.physicsWorld addJoint: [SKPhysicsJointFixed jointWithBodyA: block1.physicsBody bodyB: block2.physicsBody anchor:CGPointZero]];
-        }
-        else {
-        SKSpriteNode *blockSprite = [self addBlockWithRect:CGRectFromString(block[@"rect"])];
         
-        blockSprite.physicsBody.categoryBitMask = CNPhysicsCategoryBlock;
-        blockSprite.physicsBody.collisionBitMask = CNPhysicsCategoryBlock | CNPhysicsCategoryCat | CNPhysicsCategoryEdge;
-        
-        [_gameNode addChild:blockSprite];
+        NSString * blockType = block[@"type"];
+        if(!blockType) {
+            if (block[@"tuple"]) {
+                //1
+                CGRect rect1 = CGRectFromString([block[@"tuple"] firstObject]);
+                SKSpriteNode* block1 = [self addBlockWithRect: rect1];
+                block1.physicsBody.friction = 0.8;
+                block1.physicsBody.categoryBitMask =
+                CNPhysicsCategoryBlock;
+                block1.physicsBody.collisionBitMask =
+                CNPhysicsCategoryBlock | CNPhysicsCategoryCat |
+                CNPhysicsCategoryEdge;
+                [_gameNode addChild: block1];
+                
+                //2
+                CGRect rect2 = CGRectFromString([block[@"tuple"] lastObject]);
+                SKSpriteNode* block2 = [self addBlockWithRect: rect2];
+                block2.physicsBody.friction = 0.8;
+                block2.physicsBody.categoryBitMask =
+                CNPhysicsCategoryBlock;
+                block2.physicsBody.collisionBitMask =
+                CNPhysicsCategoryBlock | CNPhysicsCategoryCat |
+                CNPhysicsCategoryEdge;
+                [_gameNode addChild: block2];
+                
+                [self.physicsWorld addJoint: [SKPhysicsJointFixed
+                                              jointWithBodyA: block1.physicsBody
+                                              bodyB: block2.physicsBody
+                                              anchor:CGPointZero]
+                 ];
+                
+            } else {
+                SKSpriteNode *blockSprite = [self addBlockWithRect:CGRectFromString(block[@"rect"])];
+                blockSprite.physicsBody.categoryBitMask =
+                CNPhysicsCategoryBlock;
+                blockSprite.physicsBody.collisionBitMask =
+                CNPhysicsCategoryBlock | CNPhysicsCategoryCat |
+                CNPhysicsCategoryEdge;
+                [_gameNode addChild:blockSprite];
+            }
+        } else {
+//            if ([blockType isEqualToString:@"PhotoFrameBlock"]) {
+//                [self createPhotoFrameWithPosition:
+//                 CGPointFromString(block[@"point"])];
+//            }
+//            else if ([blockType isEqualToString:@"TVBlock"]) {
+//                [_gameNode addChild:
+//                 [[OldTVNode alloc]
+//                  initWithRect:CGRectFromString(block[@"rect"])]];
+//            }
+            if ([blockType isEqualToString:@"WonkyBlock"]) {
+                [_gameNode addChild:
+                 [self createWonkyBlockFromRect:
+                  CGRectFromString(block[@"rect"])]];
+            }
         }
     }
 }
@@ -450,7 +480,7 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
 
 - (void)win
 {
-    if (_currentLevel<3) {
+    if (_currentLevel<7) {
         _currentLevel++;
     }
     // 1
@@ -494,6 +524,68 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     }
 }
 //--------------------------------------------------------------------------------------
+
+
+CGPoint adjustedPoint(CGPoint inputPoint, CGSize inputSize)
+{
+    //1
+    float width = inputSize.width * .15;
+    float height = inputSize.height * .15;
+    //2
+    float xMove = width * RandomFloat() - width / 2.0;
+    float yMove = height * RandomFloat() - height / 2.0;
+    //3
+    return CGPointMake(inputPoint.x + xMove, inputPoint.y + yMove);
+}
+
+//--------------------------------------------------------------------------------------
+
+- (SKShapeNode *)createWonkyBlockFromRect:(CGRect)inputRect
+{
+    //1
+    CGPoint origin = CGPointMake(inputRect.origin.x - inputRect.size.width / 2.0, inputRect.origin.y - inputRect.size.height/2.0);
+    CGPoint pointlb = origin;
+    CGPoint pointlt = CGPointMake(origin.x, inputRect.origin.y + inputRect.size.height);
+    CGPoint pointrb = CGPointMake(origin.x + inputRect.size.width, origin.y);
+    CGPoint pointrt = CGPointMake(origin.x + inputRect.size.width, origin.y + inputRect.size.height);
+    //2
+    pointlb = adjustedPoint(pointlb, inputRect.size);
+    pointlt = adjustedPoint(pointlt, inputRect.size);
+    pointrb = adjustedPoint(pointrb, inputRect.size);
+    pointrt = adjustedPoint(pointrt, inputRect.size);
+    //3
+    UIBezierPath *shapeNodePath = [UIBezierPath bezierPath];
+    [shapeNodePath moveToPoint:pointlb];
+    [shapeNodePath addLineToPoint:pointlt];
+    [shapeNodePath addLineToPoint:pointrt];
+    [shapeNodePath addLineToPoint:pointrb];
+    //4
+    [shapeNodePath closePath];
+    //5
+    SKShapeNode *wonkyBlock = [SKShapeNode node];
+    wonkyBlock.path = shapeNodePath.CGPath;
+    //6
+    UIBezierPath *physicsBodyPath = [UIBezierPath bezierPath];
+    [physicsBodyPath moveToPoint: CGPointSubtract(pointlb, CGPointMake(-2, -2))];
+    [physicsBodyPath addLineToPoint: CGPointSubtract(pointlt, CGPointMake(-2, 2))];
+    [physicsBodyPath addLineToPoint: CGPointSubtract(pointrt, CGPointMake(2, 2))];
+    [physicsBodyPath addLineToPoint: CGPointSubtract(pointrb, CGPointMake(2, -2))];
+    [physicsBodyPath closePath];
+    //7
+    wonkyBlock.physicsBody = [SKPhysicsBody bodyWithPolygonFromPath:physicsBodyPath.CGPath];
+    wonkyBlock.physicsBody.categoryBitMask = CNPhysicsCategoryBlock;
+    wonkyBlock.physicsBody.collisionBitMask = CNPhysicsCategoryBlock | CNPhysicsCategoryCat | CNPhysicsCategoryEdge;
+    //8
+    wonkyBlock.lineWidth = 1.0;
+    wonkyBlock.fillColor = [SKColor colorWithRed:0.75 green:0.75 blue:1.0 alpha:1.0];
+    wonkyBlock.strokeColor = [SKColor colorWithRed:0.15 green:0.15 blue:0.0 alpha:1.0];
+    wonkyBlock.glowWidth = 1.0;
+    return wonkyBlock;
+}
+
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+
 
 
 @end
