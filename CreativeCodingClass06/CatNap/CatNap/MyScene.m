@@ -20,6 +20,8 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     CNPhysicsCategoryLabel = 1 << 4, // 10000 = 16
     CNPhysicsCategorySpring = 1 << 5, // 100000 = 32
     CNPhysicsCategoryHook = 1 << 6, // 1000000 = 64
+    CNPhysicsCategorySeesaw = 1 << 7
+
 };
 
 //--------------------------------------------------------------------------------------
@@ -40,6 +42,7 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     SKSpriteNode *_hookBaseNode;
     SKSpriteNode *_hookNode;
     SKSpriteNode *_ropeNode;
+    
 }
 
 //--------------------------------------------------------------------------------------
@@ -69,7 +72,7 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     _gameNode = [SKNode node];
     [self addChild:_gameNode];
     
-    _currentLevel = 1;
+    _currentLevel = 4;
     [self setupLevel: _currentLevel];
 }
 
@@ -95,6 +98,7 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
 {
     //add the cat in the level on its starting position
     _catNode = [ SKSpriteNode spriteNodeWithImageNamed:@"cat_sleepy"];
+
     _catNode.position = pos;
     
     [_gameNode addChild:_catNode];
@@ -112,6 +116,47 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
 
 //--------------------------------------------------------------------------------------
 
+- (void)addSeesawAtPosition:(CGPoint)pos
+{
+    SKSpriteNode* _seesawBaseNode = [ SKSpriteNode spriteNodeWithImageNamed:@"45x45"];
+    _seesawBaseNode.position = pos;
+    _seesawBaseNode.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:_seesawBaseNode.size];
+    
+    _seesawBaseNode.physicsBody.collisionBitMask = kNilOptions;
+    _seesawBaseNode.physicsBody.categoryBitMask = kNilOptions;
+    
+    [_gameNode addChild:_seesawBaseNode];
+    
+    SKPhysicsJointFixed *wallFix = [SKPhysicsJointFixed
+                jointWithBodyA:_seesawBaseNode.physicsBody
+                bodyB:self.physicsBody
+                anchor:CGPointZero];
+    [self.physicsWorld addJoint: wallFix];
+    
+    [_seesawBaseNode attachDebugRectWithSize: _seesawBaseNode.size];
+    
+    
+    SKSpriteNode* _seesawNode = [ SKSpriteNode spriteNodeWithImageNamed:@"430x30"];
+    _seesawNode.position = pos;
+    _seesawNode.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize: _seesawNode.size];
+    
+//    _seesawNode.physicsBody.categoryBitMask = CNPhysicsCategorySeesaw;
+    _seesawNode.physicsBody.collisionBitMask = CNPhysicsCategoryCat | CNPhysicsCategoryBlock;
+    
+    [_seesawBaseNode attachDebugRectWithSize: _seesawNode.size];
+
+    [_gameNode addChild:_seesawNode];
+
+    SKPhysicsJointPin *seeSawFix =[SKPhysicsJointPin
+                jointWithBodyA:_seesawBaseNode.physicsBody
+                bodyB:_seesawNode.physicsBody
+                anchor:pos];
+    [self.physicsWorld addJoint:seeSawFix];
+
+}
+
+//--------------------------------------------------------------------------------------
+
 - (void)setupLevel:(int)levelNum
 {
     //load the plist file
@@ -119,9 +164,15 @@ typedef NS_OPTIONS(uint32_t, CNPhysicsCategory)
     NSString *filePath = [[NSBundle mainBundle] pathForResource:fileName ofType:@"plist"];
     NSDictionary *level = [NSDictionary dictionaryWithContentsOfFile:filePath];
     
+    if (level[@"seesawPosition"]) {
+        [self addSeesawAtPosition: CGPointFromString(level[@"seesawPosition"])];
+    }
+    
     [self addCatAtPosition: CGPointFromString(level[@"catPosition"])];
     [self addBlocksFromArray:level[@"blocks"]];
     [self addSpringsFromArray: level[@"springs"]];
+    
+    
     [[SKTAudio sharedInstance] playBackgroundMusic:@"bgMusic.mp3"];
     
     if (level[@"hookPosition"]) {
