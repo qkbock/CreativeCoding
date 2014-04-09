@@ -5,19 +5,19 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>E5EF159C-EA00-4760-BAD6-00C0A3DF98D6</string>
+	<string>0EA7B7F5-CF9F-444D-8DA0-77C4844ADF39</string>
 	<key>IDESourceControlProjectName</key>
 	<string>CatNap</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>2331B5B9-4E2D-4FD5-99EB-A9ABEF91973F</key>
+		<key>12B5BC9B-96F2-4CE4-9B05-5215EAAC1D85</key>
 		<string>https://github.com/qkbock/CreativeCoding.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>CreativeCodingClass06/CatNap/CatNap.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>2331B5B9-4E2D-4FD5-99EB-A9ABEF91973F</key>
+		<key>12B5BC9B-96F2-4CE4-9B05-5215EAAC1D85</key>
 		<string>../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
@@ -25,14 +25,14 @@
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>2331B5B9-4E2D-4FD5-99EB-A9ABEF91973F</string>
+	<string>12B5BC9B-96F2-4CE4-9B05-5215EAAC1D85</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>2331B5B9-4E2D-4FD5-99EB-A9ABEF91973F</string>
+			<string>12B5BC9B-96F2-4CE4-9B05-5215EAAC1D85</string>
 			<key>IDESourceControlWCCName</key>
 			<string>Creative Coding</string>
 		</dict>
